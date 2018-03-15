@@ -27,21 +27,17 @@ public class Session {
 
     /****ALL DATA SAVE OF USER****/
 
-    private String partidos_guardados;
     private String cadenaFotoDePerfil;
-    private  String emailUser;
-    private  String niknameUser;
-    private String isVip;
-    private String dataVipExpired;
+    private String emailUser;
+    private String nameUser;
+    private Boolean filtroPeli;
+    private Boolean filtroSerie;
+    private Boolean filtroLibro;
+    private String filtroCategoria;
+    private int numPelisFin;
+    private int numSeriesFin;
+    private int numLibrosFin;
 
-    public String getPartidos_guardados() {
-        return preferences.getString("partidos_guardados", partidos_guardados);
-    }
-
-    public void setPartidos_guardados(String partidos_guardados) {
-        editor.putString("partidos_guardados", partidos_guardados);
-        editor.commit();
-    }
 
 
     public Boolean getAccesoDirectoCreado() {
@@ -71,32 +67,75 @@ public class Session {
         editor.commit();
     }
 
-    public String getNikanmeUser() {
-        return preferences.getString("niknameUser", niknameUser);
+    public String getNameUser() {
+        return preferences.getString("nameUser", nameUser);
     }
 
-    public void setNikanmeUser(String niknameUser) {
-        editor.putString("niknameUser", niknameUser);
+    public void setNameUser(String nameUser) {
+        editor.putString("nameUser", nameUser);
         editor.commit();
     }
 
-    public String getIsVip() {
-        return preferences.getString("isVip", isVip);
+    public Boolean getFiltroPeli() {
+        return preferences.getBoolean("filtroPeli", false);
     }
 
-    public void setIsVip(String isVip) {
-        editor.putString("isVip", isVip);
+    public void setFiltroPeli(Boolean filtroPeli) {
+        editor.putBoolean("filtroPeli",filtroPeli);
         editor.commit();
     }
 
-    public String getDataVipExpired() {
-        return preferences.getString("dataVipExpired", dataVipExpired);
+    public Boolean getFiltroSerie() {
+        return preferences.getBoolean("filtroSerie", false);
     }
 
-    public void setDataVipExpired(String dataVipExpired) {
-        editor.putString("dataVipExpired", dataVipExpired);
+    public void setFiltroSerie(Boolean filtroSerie) {
+        editor.putBoolean("filtroSerie",filtroSerie);
         editor.commit();
     }
 
+    public Boolean getFiltroLibro() {
+        return preferences.getBoolean("filtroLibro", false);
+    }
 
+    public void setFiltroLibro(Boolean filtroLibro) {
+        editor.putBoolean("filtroLibro",filtroLibro);
+        editor.commit();
+    }
+
+    public String getFiltroCategoria() {
+        return preferences.getString("filtroCategoria", filtroCategoria);
+    }
+
+    public void setFiltroCategoria(String filtroCategoria) {
+        editor.putString("filtroCategoria", filtroCategoria);
+        editor.commit();
+    }
+
+    public void setNumPelisFin(int numPelisFin) {
+        editor.putInt("numPelisFin", numPelisFin);
+        editor.commit();
+    }
+
+    public int getNumPelisFin() {
+        return preferences.getInt("numPelisFin", 0);
+    }
+
+    public void setNumSeriesFin(int numSeriesFin) {
+        editor.putInt("numSeriesFin", numSeriesFin);
+        editor.commit();
+    }
+
+    public int getNumSeriesFin() {
+        return preferences.getInt("numSeriesFin", 0);
+    }
+
+    public void setNumLibrosFin(int numLibrosFin) {
+        editor.putInt("numLibrosFin", numLibrosFin);
+        editor.commit();
+    }
+
+    public int getNumLibrosFin() {
+        return preferences.getInt("numLibrosFin", 0);
+    }
 }

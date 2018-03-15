@@ -1,50 +1,52 @@
 package com.letsrouting.com.letsrouting;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.RequiresApi;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Toast;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.letsrouting.com.letsrouting.MenuFragments.AjustsFragment;
+import com.letsrouting.com.letsrouting.MenuFragments.FiltrosFragment;
+import com.letsrouting.com.letsrouting.MenuFragments.LogrosFragment;
+import com.letsrouting.com.letsrouting.MenuFragments.RutasFragment;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class MenuPrincipal extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Button btnLogOut;
+    implements NavigationView.OnNavigationItemSelectedListener {
+
     private FirebaseAuth firebaseAuth;
-
+    private Session session;
+    private CardView cvMenuPrincial;
+    private Boolean cvState=true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu_principal);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         firebaseAuth = FirebaseAuth.getInstance();
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        session = new Session(this);
+
+        cvMenuPrincial = (CardView) findViewById(R.id.cvMenuFiltros);
+
+        RutasFragment rutasFragment = new RutasFragment();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.fragment, rutasFragment).commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -55,16 +57,9 @@ public class MenuPrincipal extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        btnLogOut = (Button) findViewById(R.id.btnLogOut);
-        btnLogOut.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
-            @Override
-            public void onClick(View view) {
-                firebaseAuth.signOut();
-                startActivity(new Intent(MenuPrincipal.this, Login.class));
-                finishAffinity();
-            }
-        });
+        //Adaptamos el nav header menu
+        setNavHeaderMenu();
+
     }
 
     @Override
@@ -93,42 +88,87 @@ public class MenuPrincipal extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            if(cvState){
+                cvMenuPrincial.setVisibility(View.VISIBLE);
+                cvState=!cvState;
+            }else{
+                cvMenuPrincial.setVisibility(View.GONE);
+                cvState=!cvState;
+            }
             return true;
-        }
 
+        }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        // Handle navigation view item clicks here. //Toast.makeText(MenuPrincipal.this, "Prueba", Toast.LENGTH_LONG).show();
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            Toast.makeText(MenuPrincipal.this, "Camera.", Toast.LENGTH_LONG).show();
-            FirstFragment firstFragment = new FirstFragment();
+        if (id == R.id.nav_rutas) {
+            //Fragment Rutas
+            RutasFragment rutasFragment = new RutasFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.fragment, firstFragment).commit();
-
+            fragmentManager.beginTransaction().replace(R.id.fragment, rutasFragment).commit();
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-            Toast.makeText(MenuPrincipal.this, "Galery.", Toast.LENGTH_LONG).show();
-            SecondFragment secondFragment = new SecondFragment();
+        } else if (id == R.id.nav_filtros) {
+            //Fragment Filtros de rutas
+            FiltrosFragment filtrosFragment = new FiltrosFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.fragment, secondFragment).commit();
+            fragmentManager.beginTransaction().replace(R.id.fragment, filtrosFragment).commit();
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_logros) {
+            //Fragment Rutas Logradas
+            LogrosFragment logrosFragment = new LogrosFragment();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.fragment, logrosFragment).commit();
+        } else if (id == R.id.nav_perfil) {
+            //Fragment Ajustes del usuario
+            AjustsFragment ajustsFragment = new AjustsFragment();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.fragment, ajustsFragment).commit();
 
-        } else if (id == R.id.nav_manage) {
+        }  else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        }else if (id == R.id.nav_send) {
 
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void setNavHeaderMenu(){
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        View hView =  navigationView.getHeaderView(0);
+        final CircleImageView civNavFoto = (CircleImageView) hView.findViewById(R.id.civNavFoto);
+        final TextView tvNombre = (TextView) hView.findViewById(R.id.txNavNameUser);
+        final TextView tvEmail = (TextView) hView.findViewById(R.id.txNavEmailUser);
+        tvNombre.setText(session.getNameUser());
+        tvEmail.setText(firebaseAuth.getCurrentUser().getEmail());
+
+        /*Set profile image*/
+        try {
+
+            if (firebaseAuth.getCurrentUser().getPhotoUrl() == null) {
+                civNavFoto.setImageResource(R.drawable.user_default);
+            } else {
+                Glide.with(MenuPrincipal.this).load(firebaseAuth.getCurrentUser().getPhotoUrl().toString()).asBitmap().into(civNavFoto);
+            }
+        } catch (Exception e) {
+
+        }
+        /*LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View mView = layoutInflater.inflate(R.layout.nav_header_menu_principal, null);
+
+        final CircleImageView civNavFoto = (CircleImageView) hView.findViewById(R.id.civNavFoto);
+        final TextView tvNombre = (TextView) hView.findViewById(R.id.txNavNameUser);
+        final TextView tvEmail = (TextView) hView.findViewById(R.id.txNavEmailUser);
+
+        tvNombre.setText(session.getNameUser());
+        tvEmail.setText(firebaseAuth.getCurrentUser().getEmail());*/
+
     }
 }

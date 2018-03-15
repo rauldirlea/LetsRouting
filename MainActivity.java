@@ -3,11 +3,13 @@ package com.letsrouting.com.letsrouting;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.letsrouting.com.letsrouting.LogReg.Login;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -35,6 +37,12 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this,Login.class);
             startActivity(intent);
             finish();
+        }
+        //Activamos el modo firebase sin connexion
+        try{
+            FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        }catch (Exception e){
+
         }
     }
 

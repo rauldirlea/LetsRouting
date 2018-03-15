@@ -1,14 +1,11 @@
-package com.letsrouting.com.letsrouting;
+package com.letsrouting.com.letsrouting.LogReg;
 
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -25,26 +22,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.Inflater;
-
-import de.hdodenhof.circleimageview.CircleImageView;
+import com.letsrouting.com.letsrouting.MenuPrincipal;
+import com.letsrouting.com.letsrouting.R;
+import com.letsrouting.com.letsrouting.Session;
+import com.letsrouting.com.letsrouting.UserInfo;
 
 public class Register extends AppCompatActivity implements View.OnClickListener{
 
@@ -55,6 +42,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
     private FirebaseAuth firebaseAuth;
     private DatabaseReference databaseReference;
     private FirebaseDatabase firebaseDatabase;
+    private Session session;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +52,7 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
         Register.this.setRequestedOrientation(
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        session = new Session(this);
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = firebaseDatabase.getReference("lista_usuarios");//Nuestra sala de usuarios registrados
@@ -121,11 +110,12 @@ public class Register extends AppCompatActivity implements View.OnClickListener{
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    //user is succesfful registration
-                    UserInfo userInfo = new UserInfo(name,email,"");
-                    databaseReference.child(firebaseAuth.getCurrentUser().getUid()).setValue(userInfo);//save user info nikname and email
 
+                    UserInfo userInfo = new UserInfo(name,email,"",0,0,0);
+                    databaseReference.child(firebaseAuth.getCurrentUser().getUid()).setValue(userInfo);
                     progressDialog.dismiss();
+                    session.setNameUser(registerEditName.getText().toString().trim());
+                    session.setEmailUser(registerEditEmail.getText().toString().trim());
                     registerEditName.getText().clear();
                     registerEditEmail.getText().clear();
                     registerEditPassword.getText().clear();

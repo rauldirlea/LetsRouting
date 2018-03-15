@@ -1,4 +1,4 @@
-package com.letsrouting.com.letsrouting;
+package com.letsrouting.com.letsrouting.LogReg;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -15,9 +14,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -31,18 +30,34 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.ProviderQueryResult;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.letsrouting.com.letsrouting.MenuPrincipal;
+import com.letsrouting.com.letsrouting.R;
+import com.letsrouting.com.letsrouting.Rutas.AdapterRutas;
+import com.letsrouting.com.letsrouting.Rutas.Ruta;
+import com.letsrouting.com.letsrouting.Session;
+import com.letsrouting.com.letsrouting.UserInfo;
 
-import java.util.zip.Inflater;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Login extends AppCompatActivity implements View.OnClickListener {
 
     private EditText etEmail, etPassword;
-    private Button btnLogin;
-    private TextView textRegisterHeare, txtRestorePassword;
+    private Button btnLogin, btnRegisterHeare;
+    private TextView txtRestorePassword;
     private ProgressDialog progressDialog;
     private FirebaseAuth firebaseAuth;
+    private DatabaseReference databaseReference;
+    private FirebaseDatabase firebaseDatabase;
     private Session session;
 
     @Override
@@ -57,6 +72,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         session = new Session(this);
         progressDialog = new ProgressDialog(this);
         firebaseAuth = FirebaseAuth.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getInstance().getReference();
 
         if(firebaseAuth.getCurrentUser() != null){
             //profile activity start here
@@ -67,11 +84,11 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
         etEmail = (EditText) findViewById(R.id.etEmail);
         etPassword = (EditText) findViewById(R.id.etPassword);
         btnLogin = (Button) findViewById(R.id.btnLogin);
-        textRegisterHeare =  (TextView) findViewById(R.id.textRegisterHeare);
+        btnRegisterHeare =  (Button) findViewById(R.id.btnRegisterHeare);
         txtRestorePassword =  (TextView) findViewById(R.id.txtRestorePassword);
 
         btnLogin.setOnClickListener(this);
-        textRegisterHeare.setOnClickListener(this);
+        btnRegisterHeare.setOnClickListener(this);
         txtRestorePassword.setOnClickListener(this);
     }
 
@@ -103,6 +120,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
                     progressDialog.dismiss();
                     etEmail.getText().clear();
                     etPassword.getText().clear();
+                    actualizarDatosUsuario();
                     startActivity(new Intent(getApplicationContext(), MenuPrincipal.class));
                     finishAffinity();
                     Toast.makeText(Login.this, "Inicio de sesión correcto", Toast.LENGTH_LONG).show();
@@ -174,6 +192,35 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
 
     }
 
+    public void actualizarDatosUsuario(){
+
+        databaseReference.child("lista_usuarios").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.getChildrenCount() > 0) {
+                    for (DataSnapshot uniqueKeySnapshot : dataSnapshot.getChildren()) {
+
+                        if(firebaseAuth.getCurrentUser().getUid().equals(uniqueKeySnapshot.getKey())){
+                            UserInfo userInfo = uniqueKeySnapshot.getValue(UserInfo.class);
+                            session.setNameUser(userInfo.getNombre());
+                            session.setEmailUser(firebaseAuth.getCurrentUser().getEmail());
+                            session.setCadenaFotoDePerfil(userInfo.getUrlPhoto());
+                            session.setNumPelisFin(userInfo.getNumPelisFin());
+                            session.setNumSeriesFin(userInfo.getNumSeriesFin());
+                            session.setNumLibrosFin(userInfo.getNumLibrosFin());
+                        }
+                    }
+                }else{
+
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private Snackbar getSnackbar(String text){
         CoordinatorLayout coordinatorLayout=(CoordinatorLayout)findViewById(R.id.myCoordinatorLayout);
         Snackbar snackbar = Snackbar.make(coordinatorLayout, text, Snackbar.LENGTH_LONG);
@@ -192,7 +239,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener {
             userLogin();
         }
 
-        if(view == textRegisterHeare){
+        if(view == btnRegisterHeare){
             startActivity(new Intent(this, Register.class));
         }
 
