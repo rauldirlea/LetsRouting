@@ -40,7 +40,7 @@ public class MenuPrincipal extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         firebaseAuth = FirebaseAuth.getInstance();
-        session = new Session(this);
+        session = new Session(this); 
 
         cvMenuPrincial = (CardView) findViewById(R.id.cvMenuFiltros);
 
